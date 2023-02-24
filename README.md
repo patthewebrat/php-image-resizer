@@ -2,6 +2,16 @@
 
 This is a PHP script that takes in an image URL, width, height, quality, and crop via the query string, resizes and crops the image (if necessary), optimizes it (if it's a JPEG), saves the image in a cache, and includes the image in the response.
 
+## Installation
+
+To download vendor files run:
+
+`composer install`
+
+Then create .env and edit this file to include your whitelisted image domains.
+
+`cp .env.example .env`
+
 ## Usage
 
 To use this script, you can simply call the script with the following query string parameters:
