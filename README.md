@@ -10,7 +10,7 @@ To download vendor files run:
 
 `composer install`
 
-Then create .env and edit this file to include your whitelisted image domains.
+Then create .env and edit this file to include your whitelisted image domains and cache lifetime (in seconds)
 
 `cp .env.example .env`
 
