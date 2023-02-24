@@ -29,6 +29,9 @@ $allowed_domains = explode(',', $_ENV['ALLOWED_DOMAINS']);
 if (in_array($domain, $allowed_domains)) {
     // The domain is allowed, proceed
 
+    //Define cache lifetime
+    header('Cache-Control: max-age=' . $_ENV['CACHE_LIFETIME']);
+
     // Get the width, height, quality, and crop from the querystring
     $image_width = $_GET['width'];
     $image_height = $_GET['height'];
