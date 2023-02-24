@@ -44,7 +44,7 @@ Example URL: http://yourdomain.com/resize?url=http://example.com/image.jpg&width
 The script will save the resized and optimized image in a cache folder to speed up subsequent requests. The cache key is generated based on the query string parameters, so if the same URL, width, height, quality, and crop are requested again, the cached image will be returned.
 License
 
-You can clear the cache at any time by calling https://yourdomain.com/clear, or by running
+You can clear the cache at any time by calling https://example.com/clear, or by running
 
 `php clear.php` 
 
