@@ -11,15 +11,15 @@ To use this script, you can simply call the script with the following query stri
 *    height (required): the height of the resized image in pixels
 *    quality (optional): the quality of the output image (0-100), only applicable for JPEG images (default: 75)
 *    crop (optional): the cropping option to be used to crop the image to the specified aspect ratio. Supported values are:
-  *    topleft: image is cropped from the top left down
-  *    topright: image is cropped from the top right down
-  *    bottomleft: image is cropped from the bottom left up
-  *    bottomright: image is cropped from the bottom right up
-  *    bottomcentre: image is cropped from the center horizontally, then bottom up vertically
-  *    topcentre: image is cropped from the center horizontally, then top down vertically
-  *    centreleft: image is cropped from the center vertically, then left to right horizontally
-  *    centreright: image is cropped from the center vertically, then right to left horizontally
-  *    centre: image is cropped from the center outwards
+    *    topleft: image is cropped from the top left down
+    *    topright: image is cropped from the top right down
+    *    bottomleft: image is cropped from the bottom left up
+    *    bottomright: image is cropped from the bottom right up
+    *    bottomcentre: image is cropped from the center horizontally, then bottom up vertically
+    *    topcentre: image is cropped from the center horizontally, then top down vertically
+    *    centreleft: image is cropped from the center vertically, then left to right horizontally
+    *    centreright: image is cropped from the center vertically, then right to left horizontally
+    *    centre: image is cropped from the center outwards
 
 Example URL: http://yourdomain.com/resize?url=http://example.com/image.jpg&width=200&height=200&quality=80&crop=bottomright
 
