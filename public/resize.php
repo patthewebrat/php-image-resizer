@@ -10,6 +10,9 @@ $dotenv->load();
 // Get the URL from the query string
 $image_url = $_GET['url'];
 
+//Define whether it is a jpeg
+$isJpg = strpos($image_url, '.jpg') !== false || strpos($image_url, '.jpeg') !== false;
+
 if(!$image_url) {
     // The domain is not allowed, reject the URL
     header("HTTP/1.1 500 Internal Server Error");
@@ -36,12 +39,6 @@ if (in_array($domain, $allowed_domains)) {
     if(!$image_quality)
         $image_quality = 100;
 
-    if(!$image_width && !$image_height) {
-        // The domain is not allowed, reject the URL
-        header("HTTP/1.1 500 Internal Server Error");
-        echo 'Error: No width or height provided';
-    }
-
     // Generate a cache key based on the querystring parameters
     $cache_key = md5($image_url . '_' . $image_width . '_' . $image_height . '_' . $image_quality . '_' . $image_crop);
 
@@ -60,13 +57,23 @@ if (in_array($domain, $allowed_domains)) {
     }
 
     // If the image is not in the cache, download it, crop it (if necessary), resize it, and save it in the cache
-    $image_data = file_get_contents($image_url);
-
-    $image = imagecreatefromstring($image_data);
+    if($isJpg) {
+        $image = imagecreatefromjpeg($image_url);
+    } else {
+        $image = imagecreatefrompng($image_url);
+        imageAlphaBlending($image, true);
+        imageSaveAlpha($image, true);
+    }
 
     // Get the original image dimensions
     $original_width = imagesx($image);
     $original_height = imagesy($image);
+
+    //Handle instance where width and height not provided
+    if(!$image_width && !$image_height) {
+        $image_width = $original_width;
+        $image_height = $original_height;
+    }
 
     //Calculate original aspect ratio
     $original_aspect_ratio = $original_width / $original_height;
@@ -130,16 +137,35 @@ if (in_array($domain, $allowed_domains)) {
                 $crop_y = ($original_height - $new_height) / 2;
                 break;
         }
-        $cropped_image = imagecrop($image, ['x' => $crop_x, 'y' => $crop_y, 'width' => $new_width, 'height' => $new_height]);
+
+        if($isJpg) {
+
+            $cropped_image = imagecrop($image, ['x' => $crop_x, 'y' => $crop_y, 'width' => $new_width, 'height' => $new_height]);
+
+        } else {
+
+            $cropped_image = imagecreatetruecolor($new_width, $new_height);
+            imagesavealpha($cropped_image, true);
+            $trans_color = imagecolorallocatealpha($cropped_image, 0, 0, 0, 127);
+            imagefill($cropped_image, 0, 0, $trans_color);
+
+            // Copy the cropped section from the original image to the new image
+            imagecopy($cropped_image, $image, 0, 0, $crop_x, $crop_y, $new_width, $new_height);
+
+        }
+
         imagedestroy($image); //Free up memory
         $image = $cropped_image;
+
     }
 
-    // Resize the image
-    $resized_image = imagescale($image, $image_width, $image_height);
-
     // Save the image in the cache (optimising it if it is a JPEG)
-    if (strpos($image_url, '.jpg') !== false || strpos($image_url, '.jpeg') !== false) {
+    if ($isJpg) {
+
+        // Resize the image
+        $resized_image = imagescale($image, $image_width, $image_height);
+
+        //Save to cache
         imagejpeg($resized_image, $cache_file, $image_quality);
 
         // Include the image in the response
@@ -147,11 +173,23 @@ if (in_array($domain, $allowed_domains)) {
         imagejpeg($resized_image);
 
     } else {
+
+        // Create a new transparent PNG image with the new dimensions
+        $resized_image = imagecreatetruecolor($image_width, $image_height);
+        imagesavealpha($resized_image, true);
+        $trans_color = imagecolorallocatealpha($resized_image, 0, 0, 0, 127);
+        imagefill($resized_image, 0, 0, $trans_color);
+
+        // Copy and resize the original image to the new image
+        imagecopyresampled($resized_image, $image, 0, 0, 0, 0, $image_width, $image_height, $new_width, $new_height);
+
+        //Save to cache
         imagepng($resized_image, $cache_file);
 
         // Include the image in the response
         header('Content-Type: image/png');
         imagepng($resized_image);
+
     }
 
     // Free up memory
