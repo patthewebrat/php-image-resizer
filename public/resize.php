@@ -10,6 +10,13 @@ $dotenv->load();
 // Get the URL from the query string
 $image_url = $_GET['url'];
 
+if(!$image_url) {
+    // The domain is not allowed, reject the URL
+    header("HTTP/1.1 500 Internal Server Error");
+    echo 'Error: No URL provided';
+}
+
+
 // Parse the URL to get the domain
 $domain = parse_url($image_url, PHP_URL_HOST);
 
@@ -24,6 +31,16 @@ if (in_array($domain, $allowed_domains)) {
     $image_height = $_GET['height'];
     $image_quality = $_GET['quality'];
     $image_crop = $_GET['crop'];
+
+    //Set quality default
+    if(!$image_quality)
+        $image_quality = 100;
+
+    if(!$image_width && !$image_height) {
+        // The domain is not allowed, reject the URL
+        header("HTTP/1.1 500 Internal Server Error");
+        echo 'Error: No width or height provided';
+    }
 
     // Generate a cache key based on the querystring parameters
     $cache_key = md5($image_url . '_' . $image_width . '_' . $image_height . '_' . $image_quality . '_' . $image_crop);
@@ -51,10 +68,20 @@ if (in_array($domain, $allowed_domains)) {
     $original_width = imagesx($image);
     $original_height = imagesy($image);
 
+    //Calculate original aspect ratio
+    $original_aspect_ratio = $original_width / $original_height;
+
+    //Handle missing width or height
+    if(!$image_width)
+        $image_width = $original_aspect_ratio * $image_height;
+
+    if(!$image_height)
+        $image_height = $image_width / $original_aspect_ratio;
+
     // Calculate the new image dimensions while maintaining the aspect ratio of the original image
     $aspect_ratio = $image_width / $image_height;
 
-    if ($original_width / $original_height > $aspect_ratio) {
+    if ($original_aspect_ratio > $aspect_ratio) {
         $new_width = $original_height * $aspect_ratio;
         $new_height = $original_height;
     } else {
@@ -63,7 +90,7 @@ if (in_array($domain, $allowed_domains)) {
     }
 
     // Crop the image if necessary
-    if ($original_width / $original_height != $aspect_ratio) {
+    if ($original_aspect_ratio != $aspect_ratio) {
         switch ($image_crop) {
             case 'topleft':
                 $crop_x = 0;

@@ -21,8 +21,8 @@ Point the web root to the public directory and you should be good to go.
 To use this script, you can simply call the script with the following query string parameters:
 
 * url (required): the URL of the image to be resized and cached
-* width (required): the width of the resized image in pixels
-* height (required): the height of the resized image in pixels
+* width (required without height): the width of the resized image in pixels
+* height (required without width): the height of the resized image in pixels
 * quality (optional): the quality of the output image (0-100), only applicable for JPEG images (default: 75)
 * crop (optional): the cropping option to be used to crop the image to the specified aspect ratio. Supported values are:
     * topleft: image is cropped from the top left down
