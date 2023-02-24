@@ -52,11 +52,11 @@ if (in_array($domain, $allowed_domains)) {
     if (file_exists($cache_file)) {
         // If it is, include it in the response and exit
         header('Content-Type: image/jpeg');
-        header('Indulge-cached: cached');
+        header('Image-Cached: cached');
         readfile($cache_file);
         exit();
     } else {
-        header('Indulge-cached: not-cached');
+        header('Image-Cached: not-cached');
     }
 
     // If the image is not in the cache, download it, crop it (if necessary), resize it, and save it in the cache
