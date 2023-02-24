@@ -12,6 +12,8 @@ Then create .env and edit this file to include your whitelisted image domains.
 
 `cp .env.example .env`
 
+Point the web root to the public directory and you should be good to go.
+
 ## Usage
 
 To use this script, you can simply call the script with the following query string parameters:
@@ -38,6 +40,10 @@ Example URL: http://yourdomain.com/resize?url=http://example.com/image.jpg&width
 The script will save the resized and optimized image in a cache folder to speed up subsequent requests. The cache key is generated based on the query string parameters, so if the same URL, width, height, quality, and crop are requested again, the cached image will be returned.
 License
 
-You can clear the cache at any time by calling https://yourdomain.com/clear
+You can clear the cache at any time by calling https://yourdomain.com/clear, or by running
+
+`php clear.php` 
+
+in the public directory.
 
 This script is released under the MIT License. You are free to use, modify, and distribute this script as you wish.
