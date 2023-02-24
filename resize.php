@@ -63,6 +63,22 @@ if ($original_width / $original_height != $aspect_ratio) {
             $crop_x = $original_width - $new_width;
             $crop_y = $original_height - $new_height;
             break;
+        case 'bottomcentre':
+            $crop_x = ($original_width - $new_width) / 2;
+            $crop_y = $original_height - $new_height;
+            break;
+        case 'topcentre':
+            $crop_x = ($original_width - $new_width) / 2;
+            $crop_y = 0;
+            break;
+        case 'centreleft':
+            $crop_x = 0;
+            $crop_y = ($original_height - $new_height) / 2;
+            break;
+        case 'centreright':
+            $crop_x = $original_width - $new_width;
+            $crop_y = ($original_height - $new_height) / 2;
+            break;
         case 'centre':
             $crop_x = ($original_width - $new_width) / 2;
             $crop_y = ($original_height - $new_height) / 2;
@@ -82,15 +98,20 @@ $resized_image = imagescale($image, $image_width, $image_height);
 
 // Save the image in the cache (optimising it if it is a JPEG)
 if (strpos($image_url, '.jpg') !== false || strpos($image_url, '.jpeg') !== false) {
-    imagejpeg($resized_image, $cache_file, $image_quality);
+    //imagejpeg($resized_image, $cache_file, $image_quality);
+
+    // Include the image in the response
+    header('Content-Type: image/jpeg');
+    imagejpeg($resized_image);
+
 } else {
-    imagepng($resized_image, $cache_file);
+    //imagepng($resized_image, $cache_file);
+
+    // Include the image in the response
+    header('Content-Type: image/png');
+    imagepng($resized_image);
 }
 
 // Free up memory
 imagedestroy($resized_image);
 imagedestroy($image);
-
-// Include the image in the response
-header('Content-Type: image/jpeg');
-imagejpeg($resized_image);
