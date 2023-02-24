@@ -163,7 +163,10 @@ if (in_array($domain, $allowed_domains)) {
     if ($isJpg) {
 
         // Resize the image
-        $resized_image = imagescale($image, $image_width, $image_height);
+        $resized_image = imagecreatetruecolor($image_width, $image_height);
+
+        // Copy and resize the original image to the new image
+        imagecopyresampled($resized_image, $image, 0, 0, 0, 0, $image_width, $image_height, $new_width, $new_height);
 
         //Save to cache
         imagejpeg($resized_image, $cache_file, $image_quality);
