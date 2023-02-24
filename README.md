@@ -1,4 +1,4 @@
-#Image Resize and Cache Script
+# Image Resize and Cache Script
 
 This is a PHP script that takes in an image URL, width, height, quality, and crop via the query string, resizes and crops the image (if necessary), optimizes it (if it's a JPEG), saves the image in a cache, and includes the image in the response.
 
