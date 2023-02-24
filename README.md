@@ -2,6 +2,8 @@
 
 This is a PHP script that takes in an image URL, width, height, quality, and crop via the query string, resizes and crops the image (if necessary), optimizes it (if it's a JPEG), saves the image in a cache, and includes the image in the response.
 
+It can handle jpeg and png files. It will only optimise jpg files.
+
 ## Installation
 
 To download vendor files run:
