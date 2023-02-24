@@ -1,6 +1,6 @@
 <?php
 // Specify the cache directory
-$cache_dir = './cache/';
+$cache_dir = '../cache/';
 
 // Get all the cache files
 $cache_files = glob($cache_dir . '*');
