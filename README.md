@@ -16,6 +16,8 @@ Then create .env and edit this file to include your whitelisted image domains.
 
 Point the web root to the public directory and you should be good to go.
 
+Should run on most versions of PHP, has been tested up to 8.1.
+
 ## Usage
 
 To use this script, you can simply call the script with the following query string parameters:
