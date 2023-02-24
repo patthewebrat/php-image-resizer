@@ -1,6 +1,7 @@
 <?php
 
-require_once dirname(__DIR__) . '/vendor/autoload.php'; // load the Composer autoloader
+// load the Composer autoloader
+require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 // Load the .env file
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
@@ -14,18 +15,20 @@ $domain = parse_url($image_url, PHP_URL_HOST);
 
 // Check if the domain is in the allowed list
 $allowed_domains = explode(',', $_ENV['ALLOWED_DOMAINS']);
+
 if (in_array($domain, $allowed_domains)) {
     // The domain is allowed, proceed
+
     // Get the width, height, quality, and crop from the querystring
     $image_width = $_GET['width'];
     $image_height = $_GET['height'];
     $image_quality = $_GET['quality'];
     $image_crop = $_GET['crop'];
 
-// Generate a cache key based on the querystring parameters
+    // Generate a cache key based on the querystring parameters
     $cache_key = md5($image_url . '_' . $image_width . '_' . $image_height . '_' . $image_quality . '_' . $image_crop);
 
-// Check if the image is already in the cache
+    // Check if the image is already in the cache
     $cache_dir = '../cache/';
     $cache_file = $cache_dir . $cache_key;
 
@@ -39,18 +42,18 @@ if (in_array($domain, $allowed_domains)) {
         header('Indulge-cached: not-cached');
     }
 
-// If the image is not in the cache, download it, crop it (if necessary), resize it, and save it in the cache
+    // If the image is not in the cache, download it, crop it (if necessary), resize it, and save it in the cache
     $image_data = file_get_contents($image_url);
 
     $image = imagecreatefromstring($image_data);
 
-// Get the original image dimensions
+    // Get the original image dimensions
     $original_width = imagesx($image);
     $original_height = imagesy($image);
 
-// Calculate the new image dimensions while maintaining the aspect ratio of the original image
+    // Calculate the new image dimensions while maintaining the aspect ratio of the original image
     $aspect_ratio = $image_width / $image_height;
-//$aspect_ratio = $original_width / $original_height;
+
     if ($original_width / $original_height > $aspect_ratio) {
         $new_width = $original_height * $aspect_ratio;
         $new_height = $original_height;
@@ -59,7 +62,7 @@ if (in_array($domain, $allowed_domains)) {
         $new_height = $original_width / $aspect_ratio;
     }
 
-// Crop the image if necessary
+    // Crop the image if necessary
     if ($original_width / $original_height != $aspect_ratio) {
         switch ($image_crop) {
             case 'topleft':
@@ -94,24 +97,21 @@ if (in_array($domain, $allowed_domains)) {
                 $crop_x = $original_width - $new_width;
                 $crop_y = ($original_height - $new_height) / 2;
                 break;
-            case 'centre':
+            case 'centre': //Flips into default
+            default:
                 $crop_x = ($original_width - $new_width) / 2;
                 $crop_y = ($original_height - $new_height) / 2;
                 break;
-            default:
-                $crop_x = 0;
-                $crop_y = 0;
-                break;
         }
         $cropped_image = imagecrop($image, ['x' => $crop_x, 'y' => $crop_y, 'width' => $new_width, 'height' => $new_height]);
-        imagedestroy($image);
+        imagedestroy($image); //Free up memory
         $image = $cropped_image;
     }
 
-// Resize the image
+    // Resize the image
     $resized_image = imagescale($image, $image_width, $image_height);
 
-// Save the image in the cache (optimising it if it is a JPEG)
+    // Save the image in the cache (optimising it if it is a JPEG)
     if (strpos($image_url, '.jpg') !== false || strpos($image_url, '.jpeg') !== false) {
         imagejpeg($resized_image, $cache_file, $image_quality);
 
@@ -134,8 +134,5 @@ if (in_array($domain, $allowed_domains)) {
 } else {
     // The domain is not allowed, reject the URL
     header("HTTP/1.1 500 Internal Server Error");
-    echo 'Invalid domain';
+    echo 'Error: Invalid domain';
 }
-
-die();
-
