@@ -10,15 +10,11 @@ $dotenv->load();
 // Get the URL from the query string
 $image_url = $_GET['url'];
 
-//Define whether it is a jpeg
-$isJpg = strpos($image_url, '.jpg') !== false || strpos($image_url, '.jpeg') !== false;
-
 if(!$image_url) {
     // The domain is not allowed, reject the URL
     header("HTTP/1.1 500 Internal Server Error");
     echo 'Error: No URL provided';
 }
-
 
 // Parse the URL to get the domain
 $domain = parse_url($image_url, PHP_URL_HOST);
@@ -26,10 +22,10 @@ $domain = parse_url($image_url, PHP_URL_HOST);
 // Check if the domain is in the allowed list
 $allowed_domains = explode(',', $_ENV['ALLOWED_DOMAINS']);
 
+// Check if domain is allowed
 if (in_array($domain, $allowed_domains)) {
-    // The domain is allowed, proceed
 
-    //Define cache lifetime
+    // Define cache lifetime
     header('Cache-Control: max-age=' . $_ENV['CACHE_LIFETIME']);
 
     // Get the width, height, quality, and crop from the querystring
@@ -38,7 +34,7 @@ if (in_array($domain, $allowed_domains)) {
     $image_quality = $_GET['quality'];
     $image_crop = $_GET['crop'];
 
-    //Set quality default
+    // Set quality default
     if(!$image_quality)
         $image_quality = 100;
 
@@ -49,9 +45,13 @@ if (in_array($domain, $allowed_domains)) {
     $cache_dir = '../cache/';
     $cache_file = $cache_dir . $cache_key;
 
+    // Get the image type
+    $image_type = getImageType(file_get_contents($cache_file));
+
+    // Check if image is in cache
     if (file_exists($cache_file)) {
         // If it is, include it in the response and exit
-        header('Content-Type: image/jpeg');
+        header("Content-Type: image/$image_type");
         header('Image-Cached: cached');
         readfile($cache_file);
         exit();
@@ -60,10 +60,25 @@ if (in_array($domain, $allowed_domains)) {
     }
 
     // If the image is not in the cache, download it, crop it (if necessary), resize it, and save it in the cache
-    if($isJpg) {
-        $image = imagecreatefromjpeg($image_url);
-    } else {
-        $image = imagecreatefrompng($image_url);
+
+    // Get image type
+    $image_raw = file_get_contents($image_url);
+    $image_type = getImageType($image_raw);
+
+    // Throw error if unsupported image type
+    if(!in_array($image_type,['jpeg','png']))
+    {
+        // The domain is not allowed, reject the URL
+        header("HTTP/1.1 500 Internal Server Error");
+        echo 'Error: Unsupported image type - ' . $image_type;
+        exit();
+    }
+
+    // Create an image object from the raw data
+    $image = imagecreatefromstring($image_raw);
+
+    // If PNG then process transparency data into image object
+    if($image_type == 'png') {
         imageAlphaBlending($image, true);
         imageSaveAlpha($image, true);
     }
@@ -72,16 +87,16 @@ if (in_array($domain, $allowed_domains)) {
     $original_width = imagesx($image);
     $original_height = imagesy($image);
 
-    //Handle instance where width and height not provided
+    // Handle instance where width and height not provided
     if(!$image_width && !$image_height) {
         $image_width = $original_width;
         $image_height = $original_height;
     }
 
-    //Calculate original aspect ratio
+    // Calculate original aspect ratio
     $original_aspect_ratio = $original_width / $original_height;
 
-    //Handle missing width or height
+    // Handle missing width or height
     if(!$image_width)
         $image_width = $original_aspect_ratio * $image_height;
 
@@ -141,11 +156,12 @@ if (in_array($domain, $allowed_domains)) {
                 break;
         }
 
-        if($isJpg) {
+        // Crop appropriately depending on image type
+        if($image_type == 'jpeg') {
 
             $cropped_image = imagecrop($image, ['x' => $crop_x, 'y' => $crop_y, 'width' => $new_width, 'height' => $new_height]);
 
-        } else {
+        } else if($image_type == 'png') {
 
             $cropped_image = imagecreatetruecolor($new_width, $new_height);
             imagesavealpha($cropped_image, true);
@@ -162,8 +178,8 @@ if (in_array($domain, $allowed_domains)) {
 
     }
 
-    // Save the image in the cache (optimising it if it is a JPEG)
-    if ($isJpg) {
+    // Resize the image, save the image in the cache and return it
+    if ($image_type == 'jpeg') {
 
         // Resize the image
         $resized_image = imagecreatetruecolor($image_width, $image_height);
@@ -171,14 +187,14 @@ if (in_array($domain, $allowed_domains)) {
         // Copy and resize the original image to the new image
         imagecopyresampled($resized_image, $image, 0, 0, 0, 0, $image_width, $image_height, $new_width, $new_height);
 
-        //Save to cache
+        // Return the image in the response and save to cache
         imagejpeg($resized_image, $cache_file, $image_quality);
 
         // Include the image in the response
         header('Content-Type: image/jpeg');
         imagejpeg($resized_image);
 
-    } else {
+    } else if ($image_type == 'png') {
 
         // Create a new transparent PNG image with the new dimensions
         $resized_image = imagecreatetruecolor($image_width, $image_height);
@@ -189,7 +205,7 @@ if (in_array($domain, $allowed_domains)) {
         // Copy and resize the original image to the new image
         imagecopyresampled($resized_image, $image, 0, 0, 0, 0, $image_width, $image_height, $new_width, $new_height);
 
-        //Save to cache
+        //Return the image in the response and save to cache
         imagepng($resized_image, $cache_file);
 
         // Include the image in the response
@@ -206,4 +222,35 @@ if (in_array($domain, $allowed_domains)) {
     // The domain is not allowed, reject the URL
     header("HTTP/1.1 500 Internal Server Error");
     echo 'Error: Invalid domain';
+}
+
+
+/**
+ * Gets image type from an image string
+ */
+function getImageType($image) {
+    if (is_string($image) && !empty($image)) {
+
+        // Get image info
+        $image_info = getimagesizefromstring($image);
+
+        if ($image_info !== false) {
+
+            // Hook out type info
+            $image_type = $image_info[2];
+            if ($image_type == IMAGETYPE_JPEG) {
+                return 'jpeg';
+            } elseif ($image_type == IMAGETYPE_GIF) {
+                return 'gif';
+            } elseif ($image_type == IMAGETYPE_PNG) {
+                return 'png';
+            } else {
+                return 'unknown';
+            }
+        } else {
+            return 'not an image';
+        }
+    } else {
+        return 'invalid input';
+    }
 }

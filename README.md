@@ -16,7 +16,7 @@ Then create .env and edit this file to include your whitelisted image domains an
 
 Point the web root to the public directory and you should be good to go.
 
-Should run on most versions of PHP, has been tested up to 8.1.
+Should run on most versions of PHP, has been tested up to 8.1. You'll probably need to increase the memory limit upwards of 512M if you are resizing larger images.
 
 ## Usage
 
@@ -38,6 +38,8 @@ To use this script, you can simply call the script with the following query stri
     * centre: image is cropped from the center outwards
 
 Example URL: http://example.com/resize?url=http://example.com/image.jpg&width=200&height=200&quality=80&crop=bottomright
+
+This script only resizes jpg and png images currently.
 
 ## Cache
 
