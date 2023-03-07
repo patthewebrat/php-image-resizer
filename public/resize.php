@@ -42,14 +42,14 @@ if (in_array($domain, $allowed_domains)) {
     $cache_key = md5($image_url . '_' . $image_width . '_' . $image_height . '_' . $image_quality . '_' . $image_crop);
 
     // Check if the image is already in the cache
-    $cache_dir = '../cache/';
+    $cache_dir = $_ENV['CACHE_DIRECTORY'];
     $cache_file = $cache_dir . $cache_key;
 
     // Get the image type
     $image_type = getImageType(file_get_contents($cache_file));
 
-    // Check if image is in cache
-    if (file_exists($cache_file)) {
+    // Check if image is in cache and hasn't expired
+    if (file_exists($cache_file) and getFileAgeInSeconds($cache_file) <= $_ENV['CACHE_LIFETIME']) {
         // If it is, include it in the response and exit
         header("Content-Type: image/$image_type");
         header('Image-Cached: cached');
@@ -252,5 +252,16 @@ function getImageType($image) {
         }
     } else {
         return 'invalid input';
+    }
+}
+
+/**
+ * Gets age of file in seconds
+ */
+function getFileAgeInSeconds($file_path) {
+    if (file_exists($file_path)) {
+        return time() - filemtime($file_path);
+    } else {
+        return false;
     }
 }

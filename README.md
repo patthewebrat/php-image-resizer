@@ -10,7 +10,7 @@ To download vendor files run:
 
 `composer install`
 
-Then create .env and edit this file to include your whitelisted image domains and cache lifetime (in seconds)
+Then create .env and edit this file to include your whitelisted image domains, cache directory (needs write access) and cache lifetime (in seconds)
 
 `cp .env.example .env`
 
@@ -38,8 +38,6 @@ To use this script, you can simply call the script with the following query stri
     * centre: image is cropped from the center outwards
 
 Example URL: http://example.com/resize?url=http://example.com/image.jpg&width=200&height=200&quality=80&crop=bottomright
-
-This script only resizes jpg and png images currently.
 
 ## Cache
 
