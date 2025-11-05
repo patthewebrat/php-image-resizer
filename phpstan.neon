@@ -1,0 +1,11 @@
+parameters:
+    level: 8
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - tests/fixtures
+    tmpDir: cache/phpstan
+    ignoreErrors:
+        # Allow test helpers to not have return types
+        - '#Function createTestImage\(\) has no return type specified#'

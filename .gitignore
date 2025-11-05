@@ -1,5 +1,8 @@
 cache/*
+logs/*
 .idea
 .env
 vendor
 composer.lock
+.phpunit.result.cache
+.pest

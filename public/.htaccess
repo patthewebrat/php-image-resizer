@@ -1,4 +1,8 @@
 RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME}\.php -f
-RewriteRule ^(.*)$ $1.php [L]
+
+# Route /resize to index.php (backward compatibility)
+RewriteRule ^resize$ index.php [L,QSA]
+
+# Route everything else to index.php unless it's an actual file
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php [L,QSA]
