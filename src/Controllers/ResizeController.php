@@ -17,6 +17,9 @@ class ResizeController
     ) {
     }
 
+    /**
+     * @param array<string, mixed> $params
+     */
     public function handle(array $params): void
     {
         try {
@@ -52,6 +55,9 @@ class ResizeController
         }
     }
 
+    /**
+     * @param array<string, mixed> $result
+     */
     private function sendSuccess(array $result): void
     {
         // Set cache control headers

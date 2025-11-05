@@ -10,6 +10,7 @@ use ImageResizer\Exceptions\ImageProcessingException;
 class ImageProcessor
 {
     /**
+     * @return array{GdImage, int, int}
      * @throws ImageProcessingException
      */
     public function process(
@@ -59,13 +60,14 @@ class ImageProcessor
 
             return [$resizedImage, $width, $height];
         } catch (\Throwable $e) {
-            if (isset($image) && $image instanceof GdImage) {
-                imagedestroy($image);
-            }
+            imagedestroy($image);
             throw new ImageProcessingException('Image processing failed: ' . $e->getMessage(), 0, $e);
         }
     }
 
+    /**
+     * @return array{int, int}
+     */
     private function calculateDimensions(
         ?int $width,
         ?int $height,
@@ -146,6 +148,9 @@ class ImageProcessor
         return $cropped;
     }
 
+    /**
+     * @return array{int, int}
+     */
     private function calculateCropPosition(
         ?string $crop,
         int $originalWidth,
@@ -238,7 +243,12 @@ class ImageProcessor
                 throw new ImageProcessingException("Failed to output {$imageType} image");
             }
 
-            return ob_get_clean();
+            $output = ob_get_clean();
+            if ($output === false) {
+                throw new ImageProcessingException('Failed to retrieve image output');
+            }
+
+            return $output;
         } catch (\Throwable $e) {
             ob_end_clean();
             throw new ImageProcessingException('Failed to output image: ' . $e->getMessage(), 0, $e);

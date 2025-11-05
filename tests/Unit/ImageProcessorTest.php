@@ -8,16 +8,23 @@ use ImageResizer\Services\ImageProcessor;
 function createTestImage(int $width, int $height, string $type = 'jpeg'): string
 {
     $image = imagecreatetruecolor($width, $height);
+    if ($image === false) {
+        throw new RuntimeException('Failed to create test image');
+    }
 
     if ($type === 'png') {
         imagesavealpha($image, true);
         $transparent = imagecolorallocatealpha($image, 0, 0, 0, 127);
-        imagefill($image, 0, 0, $transparent);
+        if ($transparent !== false) {
+            imagefill($image, 0, 0, $transparent);
+        }
     }
 
     // Add some color to make it a valid image
     $color = imagecolorallocate($image, 255, 0, 0);
-    imagefilledrectangle($image, 0, 0, $width, $height, $color);
+    if ($color !== false) {
+        imagefilledrectangle($image, 0, 0, $width, $height, $color);
+    }
 
     ob_start();
     if ($type === 'jpeg') {
@@ -29,7 +36,7 @@ function createTestImage(int $width, int $height, string $type = 'jpeg'): string
 
     imagedestroy($image);
 
-    return $data;
+    return $data !== false ? $data : '';
 }
 
 test('can process and resize jpeg image', function () {

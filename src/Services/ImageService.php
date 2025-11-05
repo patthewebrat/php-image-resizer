@@ -17,6 +17,9 @@ class ImageService
     ) {
     }
 
+    /**
+     * @return array{data: string, type: string, cached: bool}
+     */
     public function resize(
         string $url,
         ?int $width,

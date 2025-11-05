@@ -8,8 +8,12 @@ use RuntimeException;
 
 class Config
 {
+    /** @var array<string, mixed> */
     private array $config;
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(array $config = [])
     {
         if (empty($config)) {
@@ -33,6 +37,9 @@ class Config
         ];
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function parseAllowedDomains(string $domains): array
     {
         if (empty($domains)) {
@@ -69,6 +76,9 @@ class Config
         }
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getAllowedDomains(): array
     {
         return $this->config['allowed_domains'];

@@ -7,5 +7,7 @@ parameters:
         - tests/fixtures
     tmpDir: cache/phpstan
     ignoreErrors:
-        # Allow test helpers to not have return types
-        - '#Function createTestImage\(\) has no return type specified#'
+        # Pest-specific test methods
+        - '#Call to an undefined method Pest\\PendingCalls\\TestCall\|Pest\\Support\\HigherOrderTapProxy::throws\(\)#'
+        # ob_get_clean can return false but in tests it won't
+        - '#Parameter \#1 \$imageData of method ImageResizer\\Services\\ImageDownloader::getImageType\(\) expects string, string\|false given#'

@@ -88,6 +88,9 @@ class ImageDownloader
         };
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getSupportedTypes(): array
     {
         return self::SUPPORTED_TYPES;

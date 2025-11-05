@@ -15,9 +15,11 @@ uses()->beforeEach(function () {
     $testCacheDir = __DIR__ . '/fixtures/cache/';
     if (is_dir($testCacheDir)) {
         $files = glob($testCacheDir . '*');
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
+        if ($files !== false) {
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
             }
         }
     }
@@ -35,6 +37,9 @@ uses()->beforeEach(function () {
 |--------------------------------------------------------------------------
 */
 
+/**
+ * @param array<string, mixed> $override
+ */
 function getTestConfig(array $override = []): Config
 {
     $defaults = [

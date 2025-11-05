@@ -11,8 +11,12 @@ test('can detect jpeg image type', function () {
     $validator = new DomainValidator($config);
     $downloader = new ImageDownloader($config, $validator);
 
-    // Create a minimal JPEG
-    $jpeg = "\xFF\xD8\xFF\xE0\x00\x10\x4A\x46\x49\x46";
+    // Create a valid JPEG image
+    $image = imagecreatetruecolor(10, 10);
+    ob_start();
+    imagejpeg($image, null, 90);
+    $jpeg = ob_get_clean();
+    imagedestroy($image);
 
     expect($downloader->getImageType($jpeg))->toBe('jpeg');
 });
@@ -22,8 +26,12 @@ test('can detect png image type', function () {
     $validator = new DomainValidator($config);
     $downloader = new ImageDownloader($config, $validator);
 
-    // PNG header
-    $png = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A";
+    // Create a valid PNG image
+    $image = imagecreatetruecolor(10, 10);
+    ob_start();
+    imagepng($image);
+    $png = ob_get_clean();
+    imagedestroy($image);
 
     expect($downloader->getImageType($png))->toBe('png');
 });
