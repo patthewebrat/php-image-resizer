@@ -19,7 +19,13 @@ class Config
         if (empty($config)) {
             $this->loadFromEnv();
         } else {
-            $this->config = $config;
+            // Merge with defaults to ensure all keys exist
+            $defaults = [
+                'default_quality' => 100,
+                'max_file_size' => 10485760,
+                'request_timeout' => 30,
+            ];
+            $this->config = array_merge($defaults, $config);
         }
 
         $this->validate();
@@ -31,7 +37,7 @@ class Config
             'allowed_domains' => $this->parseAllowedDomains($_ENV['ALLOWED_DOMAINS'] ?? ''),
             'cache_directory' => $_ENV['CACHE_DIRECTORY'] ?? '../cache/',
             'cache_lifetime' => (int)($_ENV['CACHE_LIFETIME'] ?? 3600),
-            'default_quality' => (int)($_ENV['DEFAULT_QUALITY'] ?? 75),
+            'default_quality' => (int)($_ENV['DEFAULT_QUALITY'] ?? 100), // Backward compatibility: old default was 100
             'max_file_size' => (int)($_ENV['MAX_FILE_SIZE'] ?? 10485760), // 10MB default
             'request_timeout' => (int)($_ENV['REQUEST_TIMEOUT'] ?? 30),
         ];

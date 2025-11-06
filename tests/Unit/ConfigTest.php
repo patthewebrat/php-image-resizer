@@ -9,7 +9,7 @@ test('can create config with custom values', function () {
 
     expect($config->getAllowedDomains())->toBe(['example.com', 'test.com'])
         ->and($config->getCacheLifetime())->toBe(3600)
-        ->and($config->getDefaultQuality())->toBe(75)
+        ->and($config->getDefaultQuality())->toBe(100) // Backward compatibility: old default was 100
         ->and($config->getMaxFileSize())->toBe(10485760)
         ->and($config->getRequestTimeout())->toBe(30);
 });

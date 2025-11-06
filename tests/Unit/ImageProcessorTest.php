@@ -5,39 +5,7 @@ declare(strict_types=1);
 use ImageResizer\Exceptions\ImageProcessingException;
 use ImageResizer\Services\ImageProcessor;
 
-function createTestImage(int $width, int $height, string $type = 'jpeg'): string
-{
-    $image = imagecreatetruecolor($width, $height);
-    if ($image === false) {
-        throw new RuntimeException('Failed to create test image');
-    }
-
-    if ($type === 'png') {
-        imagesavealpha($image, true);
-        $transparent = imagecolorallocatealpha($image, 0, 0, 0, 127);
-        if ($transparent !== false) {
-            imagefill($image, 0, 0, $transparent);
-        }
-    }
-
-    // Add some color to make it a valid image
-    $color = imagecolorallocate($image, 255, 0, 0);
-    if ($color !== false) {
-        imagefilledrectangle($image, 0, 0, $width, $height, $color);
-    }
-
-    ob_start();
-    if ($type === 'jpeg') {
-        imagejpeg($image, null, 90);
-    } else {
-        imagepng($image);
-    }
-    $data = ob_get_clean();
-
-    imagedestroy($image);
-
-    return $data !== false ? $data : '';
-}
+// createTestImage() is now defined in tests/Pest.php for reuse across all tests
 
 test('can process and resize jpeg image', function () {
     $processor = new ImageProcessor();
